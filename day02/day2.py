@@ -7,15 +7,11 @@ Start by creating the functions
 
 
 def is_on_list(day_list, day):
-    if day in day_list:
-        return True
-    else:
-        return False
+    return day in day_list
 
 
 def get_x(day_list, index):
-    if index >= 0 and index < len(day_list):
-        return day_list[index]
+    return day_list[index]
 
 
 def add_x(day_list, day):
@@ -23,8 +19,7 @@ def add_x(day_list, day):
 
 
 def remove_x(day_list, day):
-    if is_on_list(day_list, day):
-        day_list.remove(day)
+    day_list.remove(day)
 
 # \/\/\/\/\/\/\  DO NOT TOUCH AREA  \/\/\/\/\/\/\ #
 
