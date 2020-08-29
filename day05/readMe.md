@@ -13,4 +13,4 @@ This is how the program should work: [watch the video](https://i.imgur.com/Nh7nk
 - 힌트2: [Index in 'for' loops?](https://stackoverflow.com/questions/522563/accessing-the-index-in-for-loops)
 
 # 완료 Repl Link
-[여기]()
+[여기](https://repl.it/@HaYoung1/Day-Five-Blueprint)
