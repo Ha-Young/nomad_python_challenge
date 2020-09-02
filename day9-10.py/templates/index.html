@@ -2,58 +2,47 @@
 <html>
 
 <head>
-    <title>Nomad News | {{ orderBy }}</title>
+    <title>Gruding News | {{order_by}}</title>
     <link href="https://andybrewer.github.io/mvp/mvp.css" rel="stylesheet">
     </link>
 </head>
 
 <body>
     <header>
-        <h1>Nomad News</h1>
+        <h1>Guruding News</h1>
         <div>
-            <span>Order by : </span>
-            {% if orderBy == 'popular' %}
-            <strong>
-                Popular
-            </strong>
-            <span>|</span>
-            <a href={{ url_for( "index", order_by="new" ) }}>
-                New
-            </a>
-            {% elif orderBy == "new" %}
-            <a href={{ url_for( "index", order_by="popular" ) }}>
-                Popular
-            </a>
-            <span> | </span>
-            <strong>
-                New
-            </strong>
+            Order by: {{order_by}}
+            {% if order_by == "popular"%}
+            <strong>Popular</strong>
+            |
+            <a href="/?order_by=new">New</a>
+            {% else %}
+            <a href="/?order_by=popular">Popular</a>
+            |
+            <strong>New</strong>
             {% endif %}
         </div>
     </header>
     <main>
-        {% if error %}
-        <div>{{ error }}</div>
-        {% else %}
-        {% for each in news %}
+        {% for story in storys %}
         <div>
             <div>
-                <a href={{ url_for( "detail", news_id=each.objectID ) }}>
-                    <h3>{{ each.title }}</h3>
+                <a href="/{{story.id}}">
+                    <h3>{{story.title}}</h3>
                 </a>
-                <div>
-                    ( <a href="{{ each.url }}" target="_blank">{{ each.url }}</a> )
-                </div>
+                (
+                <a href="{{story.url}}" target="_blank">
+                    {{story.url}}
+                </a>
+                )
             </div>
             <div>
-                <span>{{ each.points }} points | </span>
-                <span>By {{ each.author }} | </span>
-                <span>{{ each.num_comments }} comments</span>
+                {{story.points}} points | By: {{story.author}} | {{story.comments}} comments
             </div>
         </div>
-        <hr />
+        <hr>
         {% endfor %}
-        {% endif %}
+
     </main>
 </body>
 

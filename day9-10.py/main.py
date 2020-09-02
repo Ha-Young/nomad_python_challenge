@@ -1,63 +1,83 @@
 import requests
-from flask import Flask, render_template, request
-
+from flask import Flask, render_template, request, redirect
 
 base_url = "http://hn.algolia.com/api/v1"
-new = f"{base_url}/search_by_date?tags=story"
-popular = f"{base_url}/search?tags=story"
-news_db, comment_db = {}, {}
 
-app = Flask("DayNine")
+# This URL gets the newest stories.
+new_url = f"{base_url}/search_by_date?tags=story"
 
+# This URL gets the most popular stories
+popular_url = f"{base_url}/search?tags=story"
+
+
+# This function makes the URL to get the detail of a storie by id.
+# Heres the documentation: https://hn.algolia.com/api
 def make_detail_url(id):
     return f"{base_url}/items/{id}"
 
 
+def get_storys(order_by):
+    print("get_storys", order_by)
+    try:
+        request_url = None
+        if order_by == "popular":
+            request_url = popular_url
+        elif order_by == "new":
+            request_url = new_url
+        else:
+            raise Exception()
+
+        print(request_url)
+        res = requests.get(request_url)
+
+        if res.status_code != 200:
+            return None
+
+        data = res.json()
+        data = data['hits']
+
+        print(data)
+        return data
+    except:
+        return None
+
+
+def render_story(order_by):
+    storys = get_storys(order_by)
+    print(storys[1])
+    storys = list(map(lambda story: {'title': story['title'], 'author': story['author'], 'points': story['points'],
+                                     'url': story['url'], 'id': story['objectID'], 'comments': story['num_comments']}, storys))
+    print(storys)
+    return render_template("index.html", storys=storys, order_by=order_by)
+
+
+def render_detail(id):
+    detail_url = make_detail_url(id)
+    try:
+        res = requests.get(detail_url)
+        data = res.json()
+        print(data)
+        return render_template("detail.html", story=data)
+    except:
+        raise Exception()
+
+
+db = {}
+app = Flask("DayNine")
+
+
 @app.route("/")
-def index():
-  orderBy = request.args.get("order_by", default="popular")
-
-  try:
-    if orderBy not in news_db.keys():
-      if orderBy == "popular":
-          response = requests.get(popular)
-
-      elif orderBy == "new":
-          response = requests.get(new)
-
-      news = response.json()["hits"]
-      news_db[orderBy] = news
-      print(news_db[orderBy])
+def home():
+    order_by = request.args.get('order_by')
+    if order_by:
+        return render_story(order_by)
     else:
-      news = news_db[orderBy]
-
-    return render_template("index.html", orderBy=orderBy, news=news)
-  except Exception:
-    error = f"Can't get {orderBy} news."
-
-    return render_template("index.html", orderBy=orderBy, error=error)
+        return render_story("popular")
 
 
-@app.route("/<news_id>")
-def detail(news_id):
-  print(news_id)
-  try:
-    print(news_id)
-    if news_id not in comment_db.keys():
-      detail_url = make_detail_url(news_id)
-      response = requests.get(detail_url)
-      data = response.json()
-      comment_db[news_id] = data
-
-    else:
-      data = comment_db[news_id]
-
-    return render_template("detail.html", news_id=news_id, data=data)
-
-  except Exception:
-    error = f"Can't get detail information."
-
-  return render_template("detail.html", news_id=news_id, error=error)
+@app.route("/<id>")
+def detail(id):
+    return render_detail(id)
 
 
 app.run(host="0.0.0.0")
